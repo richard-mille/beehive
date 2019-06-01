@@ -42,6 +42,7 @@ import (
 	"github.com/muesli/beehive/api/resources/bees"
 	"github.com/muesli/beehive/api/resources/chains"
 	"github.com/muesli/beehive/api/resources/hives"
+	"github.com/muesli/beehive/api/resources/logs"
 	"github.com/muesli/beehive/app"
 )
 
@@ -103,6 +104,9 @@ func assetHandler(req *restful.Request, resp *restful.Response) {
 		// TODO: Would be nicer to recalculate them
 		re := regexp.MustCompile("integrity=\"([^\"]*)\"")
 		b = re.ReplaceAll(b, []byte{})
+	}
+	if strings.HasSuffix(canonicalURL, "/") {
+		canonicalURL = canonicalURL[:len(canonicalURL)-1]
 	}
 	if defaultURL != canonicalURL {
 		// We're serving files on a non-default canonical URL
@@ -191,6 +195,7 @@ func Run() {
 		&bees.BeeResource{},
 		&chains.ChainResource{},
 		&actions.ActionResource{},
+		&logs.LogResource{},
 	)
 
 	server := &http.Server{Addr: bind, Handler: wsContainer}

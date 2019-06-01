@@ -1,6 +1,6 @@
 /*
- *    Copyright (C) 2016 Gonzalo Izquierdo
- *                  2017 Christian Muehlhaeuser
+ *    Copyright (C) 2018 Stefan Derkits
+ *                  2018 Christian Muehlhaeuser
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Affero General Public License as published
@@ -16,22 +16,22 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *    Authors:
- *      Gonzalo Izquierdo <lalotone@gmail.com>
+ *      Stefan Derkits <stefan@derkits.at>
  *      Christian Muehlhaeuser <muesli@gmail.com>
  */
 
-package telegrambee
+package mixcloudbee
 
 import "github.com/muesli/beehive/bees"
 
-// TelegramBeeFactory is a factory for TelegramBees.
-type TelegramBeeFactory struct {
+// mixcloudBeeFactory is a factory for mixcloudBees.
+type MixcloudBeeFactory struct {
 	bees.BeeFactory
 }
 
 // New returns a new Bee instance configured with the supplied options.
-func (factory *TelegramBeeFactory) New(name, description string, options bees.BeeOptions) bees.BeeInterface {
-	bee := TelegramBee{
+func (factory *MixcloudBeeFactory) New(name, description string, options bees.BeeOptions) bees.BeeInterface {
+	bee := MixcloudBee{
 		Bee: bees.NewBee(name, factory.ID(), description, options),
 	}
 	bee.ReloadOptions(options)
@@ -40,36 +40,36 @@ func (factory *TelegramBeeFactory) New(name, description string, options bees.Be
 }
 
 // ID returns the ID of this Bee.
-func (factory *TelegramBeeFactory) ID() string {
-	return "telegrambee"
+func (factory *MixcloudBeeFactory) ID() string {
+	return "mixcloudbee"
 }
 
 // Name returns the name of this Bee.
-func (factory *TelegramBeeFactory) Name() string {
-	return "Telegram"
+func (factory *MixcloudBeeFactory) Name() string {
+	return "Mixcloud"
 }
 
 // Description returns the description of this Bee.
-func (factory *TelegramBeeFactory) Description() string {
-	return "Connects to Telegram"
+func (factory *MixcloudBeeFactory) Description() string {
+	return "Interact with Mixcloud"
 }
 
 // Image returns the filename of an image for this Bee.
-func (factory *TelegramBeeFactory) Image() string {
+func (factory *MixcloudBeeFactory) Image() string {
 	return factory.ID() + ".png"
 }
 
 // LogoColor returns the preferred logo background color (used by the admin interface).
-func (factory *TelegramBeeFactory) LogoColor() string {
-	return "#003b66"
+func (factory *MixcloudBeeFactory) LogoColor() string {
+	return "#52aad8"
 }
 
 // Options returns the options available to configure this Bee.
-func (factory *TelegramBeeFactory) Options() []bees.BeeOptionDescriptor {
+func (factory *MixcloudBeeFactory) Options() []bees.BeeOptionDescriptor {
 	opts := []bees.BeeOptionDescriptor{
 		{
-			Name:        "api_key",
-			Description: "Telegram bot API key",
+			Name:        "feed",
+			Description: "Feed to follow",
 			Type:        "string",
 			Mandatory:   true,
 		},
@@ -78,64 +78,50 @@ func (factory *TelegramBeeFactory) Options() []bees.BeeOptionDescriptor {
 }
 
 // Events describes the available events provided by this Bee.
-func (factory *TelegramBeeFactory) Events() []bees.EventDescriptor {
+func (factory *MixcloudBeeFactory) Events() []bees.EventDescriptor {
 	events := []bees.EventDescriptor{
 		{
 			Namespace:   factory.Name(),
-			Name:        "message",
-			Description: "A message received via Telegram bot",
+			Name:        "new_cloudcast",
+			Description: "A new cloudcast is available",
 			Options: []bees.PlaceholderDescriptor{
 				{
-					Name:        "text",
-					Description: "The message that was received",
-					Type:        "string",
-				}, {
-					Name:        "chat_id",
-					Description: "Telegram's chat ID",
+					Name:        "name",
+					Description: "Name of the Cloudcast",
 					Type:        "string",
 				},
 				{
-					Name:        "user_id",
-					Description: "User ID sending the message",
+					Name:        "url",
+					Description: "Cloudcast URL",
 					Type:        "string",
 				},
 				{
-					Name:        "timestamp",
-					Description: "Timestamp",
-					Type:        "timestamp",
+					Name:        "slug",
+					Description: "Cloudcast Slug",
+					Type:        "string",
 				},
 			},
 		},
 	}
-
 	return events
 }
 
 // Actions describes the available actions provided by this Bee.
-func (factory *TelegramBeeFactory) Actions() []bees.ActionDescriptor {
-	actions := []bees.ActionDescriptor{{
-		Namespace:   factory.Name(),
-		Name:        "send",
-		Description: "Sends a message to a Telegram chat or group",
-		Options: []bees.PlaceholderDescriptor{
-			{
-				Name:        "chat_id",
-				Description: "Telegram chat/group to send the message to",
-				Type:        "string",
-				Mandatory:   true,
-			},
-			{
-				Name:        "text",
-				Description: "Content of the message",
-				Type:        "string",
-				Mandatory:   true,
+func (factory *MixcloudBeeFactory) Actions() []bees.ActionDescriptor {
+	actions := []bees.ActionDescriptor{
+		{
+			Namespace:   factory.Name(),
+			Name:        "poll_feed",
+			Description: "Polls the Mixcloud Feed specified in the options",
+			Options: []bees.PlaceholderDescriptor{
+
 			},
 		},
-	}}
+	}
 	return actions
 }
 
 func init() {
-	f := TelegramBeeFactory{}
+	f := MixcloudBeeFactory{}
 	bees.RegisterFactory(&f)
 }
